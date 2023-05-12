@@ -76,6 +76,29 @@ namespace MvcApiNuggetTiendaZapatillasJPL.Services
             }
         }
 
+        private async Task<T> CallApiAsync<T>(string request, string token)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.UrlApiZapatillas);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Add
+                    ("Authorization", "bearer " + token);
+                HttpResponseMessage response =
+                    await client.GetAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    T data = await response.Content.ReadAsAsync<T>();
+                    return data;
+                }
+                else
+                {
+                    return default(T);
+                }
+            }
+        }
+
         //METODO PARA CREAR UN NUEVO USUARIO
         public async Task InsertUsuarioAsync
         (string nombre, string dni, string direccion, string telefono, string email, byte[] password)
@@ -105,6 +128,16 @@ namespace MvcApiNuggetTiendaZapatillasJPL.Services
                 HttpResponseMessage response =
                     await client.PostAsync(request, content);
             }
+        }
+
+        //METODO PROTEGIDO PARA RECUPERAR EL PERFIL
+        public async Task<Usuario> GetPerfilUsuarioAsync
+            (string token)
+        {
+            string request = "/api/Usuarios/PerfilUsuario";
+            Usuario user = await
+                this.CallApiAsync<Usuario>(request, token);
+            return user;
         }
 
     }

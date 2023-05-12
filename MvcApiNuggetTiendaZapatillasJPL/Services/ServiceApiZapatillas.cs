@@ -79,7 +79,7 @@ namespace MvcApiNuggetTiendaZapatillasJPL.Services
         //METODOS DE ZAPATILLAS(TODOS SON METODOS LIBRES)
 
         //METODO PARA SACAR TODAS LAS ZAPATILLAS
-        public async Task<List<Zapatilla>> GetCubosAsync()
+        public async Task<List<Zapatilla>> GetZapatillassAsync()
         {
             string request = "api/Zapatillas";
             List<Zapatilla> zapatillas =
@@ -88,11 +88,32 @@ namespace MvcApiNuggetTiendaZapatillasJPL.Services
         }
 
         //METODO PARA DETALLES DE CADA ZAPATILLA
-        public async Task<List<Zapatilla>> FindCuboAsync(int id)
+        public async Task<Zapatilla> FindZapatillaAsync(int id)
         {
-            string request = "api/Zapatillas/" + id;
-            List<Zapatilla> zapas = await this.CallApiAsync<List<Zapatilla>>(request);
-            return zapas;
+            using (HttpClient client = new HttpClient())
+            {
+
+                string request = "/api/hospitales/" + id;
+
+                client.BaseAddress = new Uri(this.UrlApiZapatillas);
+
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+
+                HttpResponseMessage response = await client.GetAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Zapatilla zap =
+                        await response.Content.ReadAsAsync<Zapatilla>();
+                    return zap;
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
 
     }
